@@ -1,6 +1,15 @@
-# RAG — Comparação de Estratégias de Recuperação Aumentada
+# Agente de Inteligência Artificial
 
-Projeto de estudo desenvolvido durante o curso Oracle, com foco em implementar e comparar diferentes estratégias de **Retrieval-Augmented Generation (RAG)** utilizando LangChain, modelos locais via Ollama e vetorização com FAISS.
+Entregável do **Programa ONE** para certificação.
+
+![Programa ONE](RAG\img\programa_ONE.png)
+
+Em parceria com a **[Alura](https://www.alura.com.br/)**, O **[Programa ONE](https://www.oracle.com/br/education/oracle-next-education/) - Oracle Next Education - ** proporcionou:
+
+- **Nivelamento:** GitHub, Python aplicado, Fundamentos de IA e Machine Learning.
+- **Agentes Autônomos e Automação com n8n**
+- **Engenharia de IA e RAG com LangChain**
+- **Oracle Cloud Infrasctructure (OCI):** disponibilização do projeto na nuvem.  
 
 ---
 

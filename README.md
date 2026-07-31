@@ -6,7 +6,7 @@
   <img src="img/programa_ONE.png" alt="Programa ONE" height="400">
 </p>
 
-Em parceria com a <a href="https://www.alura.com.br/" target="_blank">Alura</a>, o <a href="https://www.oracle.com/br/education/oracle-next-education/" target="_blank">Programa ONE</a> proporcionou:
+Em parceria com a <a href="https://www.alura.com.br/" target="_blank" rel="noopener noreferrer">Alura</a>, o <a href="https://www.oracle.com/br/education/oracle-next-education/" target="_blank" rel="noopener noreferrer">Programa ONE</a> proporcionou:
 
 - **Nivelamento:** GitHub, Python aplicado, Fundamentos de IA e Machine Learning.
 - **Agentes Autônomos e Automação com n8n**

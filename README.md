@@ -6,15 +6,9 @@ Projeto de estudo desenvolvido durante o curso Oracle, com foco em implementar e
 
 ## 🎯 Objetivo
 
-Demonstrar, de forma prática e rastreável, as diferenças entre abordagens de RAG:
+Construir um **Agente de IA** focado em **responder perguntas de colaboradores de um Mercado Central 24H** em relação a **diversos documentos** pertinentes no contexto da empresa.
 
-| Estratégia | Descrição |
-|---|---|
-| **RAG Simples** | A query original do usuário é usada diretamente na busca vetorial |
-| **RAG com Reescrita** | Um LLM leve reescreve a query antes da busca, otimizando a recuperação semântica |
-| **RAG Multi-Query** *(implementado, não integrado ao main)* | Gera múltiplas variações da pergunta, amplia a cobertura e deduplica os documentos recuperados |
-
-Todas as execuções são rastreadas via **LangSmith**, permitindo comparar os traces lado a lado.
+O Agente está aberto a qualquer colaborador da empresa, sem necessidade de acesso restrito.
 
 ---
 
@@ -44,6 +38,8 @@ RAG/
 
 ## 🏗️ Arquitetura
 
+Três tipos de RAG são avaliados para encontrar a melhor arquitetura de atendimento do agente.
+
 ### RAG Simples
 
 **Futuramente, colocar uma imagem do LangSmith.**
@@ -59,6 +55,16 @@ RAG/
 **Futuramente, colocar uma imagem do LangSmith.**
 
 Gera 3 variações da pergunta original → busca em paralelo → deduplica documentos → responde com a query original.
+
+
+| Estratégia | Descrição |
+|---|---|
+| **RAG Simples** | A query original do usuário é usada diretamente na busca vetorial |
+| **RAG com Reescrita** | Um LLM leve reescreve a query antes da busca, otimizando a recuperação semântica |
+| **RAG Multi-Query** | Gera múltiplas variações da pergunta, amplia a cobertura e deduplica os documentos recuperados |
+
+Todas as execuções são rastreadas via **LangSmith**, permitindo comparar os traces lado a lado.
+
 
 ---
 

@@ -2,7 +2,7 @@
 
 Entregável do **Programa ONE** para certificação.
 
-![Programa ONE](RAG\img\programa_ONE.png)
+![Programa ONE](img/programa_ONE.png)
 
 Em parceria com a **[Alura](https://www.alura.com.br/)**, O **[Programa ONE](https://www.oracle.com/br/education/oracle-next-education/) - Oracle Next Education - ** proporcionou:
 

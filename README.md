@@ -1,6 +1,6 @@
 <h1 align="center">Agente de Inteligência Artificial</h1>
 
-<h2 align="center">Entregável do **Programa ONE** para certificação.</h2>
+<h3 align="center">Entregável do Programa ONE para certificação.</h3>
 
 <p align="center">
   <img src="img/programa_ONE.png" alt="Programa ONE" height="400">

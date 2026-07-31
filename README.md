@@ -1,10 +1,12 @@
-# Agente de Inteligência Artificial
+<h1 align="center">Agente de Inteligência Artificial</h1>
 
-Entregável do **Programa ONE** para certificação.
+<h2 align="center">Entregável do **Programa ONE** para certificação.</h2>
 
-![Programa ONE](img/programa_ONE.png)
+<p align="center">
+  <img src="img/programa_ONE.png" alt="Programa ONE" height="400">
+</p>
 
-Em parceria com a **[Alura](https://www.alura.com.br/)**, O **[Programa ONE](https://www.oracle.com/br/education/oracle-next-education/) - Oracle Next Education - ** proporcionou:
+Em parceria com a **[Alura](https://www.alura.com.br/)**, o **[Programa ONE](https://www.oracle.com/br/education/oracle-next-education/)** proporcionou:
 
 - **Nivelamento:** GitHub, Python aplicado, Fundamentos de IA e Machine Learning.
 - **Agentes Autônomos e Automação com n8n**

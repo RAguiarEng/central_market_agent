@@ -143,10 +143,12 @@ LANGSMITH_PROJECT="RAG_Oracle"
 
 | Papel | Modelo | Onde roda |
 |---|---|---|
-| Embeddings | `bge-m3` (BAAI) | Ollama (local) |
-| LLM principal (resposta) | `llama3.2` | Ollama (local) |
-| LLM auxiliar (reescrita) | `gemma3:1b` | Ollama (local) |
-| Tokenizer (chunking) | `BAAI/bge-m3` | HuggingFace Hub |
+| Embeddings | `bge-m3` (BAAI) | [Ollama (local)](https://ollama.com/library/bge-m3) |
+| LLM principal (resposta) | `llama3.2` | [Ollama (local)](https://ollama.com/library/llama3.2) |
+| LLM auxiliar (reescrita) | `gemma3:1b` | [Ollama (local)](https://ollama.com/library/gemma3:1b) |
+| Tokenizer (chunking) | `BAAI/bge-m3` | [HuggingFace Hub](https://huggingface.co/BAAI/bge-m3) |
+| LLM avaliador de RAG (1ª opção) | `nvidia/nemotron-3-super-120b-a12b:free` | [OpenRouter](https://openrouter.ai/nvidia/nemotron-3-super-120b-a12b:free) |
+| LLM avaliador de RAG (2ª opçção) | `qwen3:4b` | [Ollama (local)](https://ollama.com/library/qwen3:4b) |
 
 ---
 

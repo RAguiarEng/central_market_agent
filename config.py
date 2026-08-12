@@ -19,7 +19,7 @@ LANGSMITH_PROJECT: str = os.getenv("LANGSMITH_PROJECT")
 
 # --- Configurações de Modelos ---
 # Modelo de embeddings para vetorização de documentos e queries
-EMBEDDING_MODEL: str = 'bge-m3'     # modelo local
+EMBEDDING_MODEL: str = 'bge-m3'     # modelo local (2ª opção: modelos do Cohere)
 # Modelo principal de LLM para síntese de respostas pelos agentes
 LLM_MAIN: str = 'llama3.2'          # modelo local (antes era o LLM_MODEL)
 # Modelo de LLM leve para reescrita de query (pode ser usado pelo supervisor futuramente)

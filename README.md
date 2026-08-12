@@ -135,7 +135,7 @@ LANGSMITH_API_KEY=sua_chave_langsmith
 LANGSMITH_PROJECT="RAG_Oracle"
 ```
 
->![note] **Nunca comite o arquivo `.env`!** Ele já está listado no `.gitignore`.
+> ⚠️ **Nunca comite o arquivo `.env`!** Ele já está listado no `.gitignore`.
 
 ---
 

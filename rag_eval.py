@@ -34,9 +34,12 @@ from ragas.metrics import (
     faithfulness,
 )
 from ragas.run_config import RunConfig
+from langsmith import Client
+from langchain_openai import ChatOpenAI
 
-from config import EMBEDDING_MODEL, LLM_EVAL_MODEL
+from config import EMBEDDING_MODEL, OPENROUTER_API_KEY, OPENROUTER_JUDGE_MODEL
 
+DATASET_NOME = "avaliacao-rag-mercado"
 METRICAS_RAGAS = [faithfulness, answer_relevancy, context_precision, context_recall]
 
 # Configuração ajustada para execução local via Ollama:
@@ -48,7 +51,13 @@ RUN_CONFIG_LOCAL = RunConfig(timeout=600, max_workers=1)
 def montar_avaliador_ragas() -> tuple[LangchainLLMWrapper, LangchainEmbeddingsWrapper]:  # type: ignore[valid-type]
     """Prepara o LLM juiz e o modelo de embeddings usados internamente
     pelo RAGAS para julgar cada métrica."""
-    llm_avaliador = LangchainLLMWrapper(OllamaLLM(model=LLM_EVAL_MODEL))
+    llm_avaliador = LangchainLLMWrapper(
+        ChatOpenAI(
+            model=OPENROUTER_JUDGE_MODEL,
+            base_url="https://openrouter.ai/api/v1",
+            api_key=OPENROUTER_API_KEY,
+            )
+        )
     embeddings_avaliador = LangchainEmbeddingsWrapper(
         OllamaEmbeddings(model=EMBEDDING_MODEL)
     )
@@ -114,3 +123,48 @@ def avaliar_estrategia(
 
     print(f"\n[{nome_estrategia}]")
     print(resultado)
+
+
+def criar_ou_obter_dataset(perguntas_gabarito: list[dict[str, str]]) -> str:
+    """Cria (ou reaproveita, se já existir) um dataset no LangSmith
+    a partir do gabarito de perguntas e respostas.
+
+    Args:
+        perguntas_gabarito: lista de dicionários com "test_query" e
+            "answer".
+
+    Returns:
+        Nome do dataset criado/reaproveitado no LangSmith.
+    """
+    client = Client()
+
+    if client.has_dataset(dataset_name=DATASET_NOME):
+        print(f"Dataset '{DATASET_NOME}' já existe, reaproveitando.")
+        return DATASET_NOME
+
+    dataset = client.create_dataset(
+        dataset_name=DATASET_NOME,
+        description="Gabarito de perguntas e respostas sobre o Mercado, usado para comparar estratégias de RAG.",
+    )
+
+    examples = [
+        {
+            "inputs": {"question": item["test_query"]},
+            "outputs": {"answer": item["answer"]},
+        }
+        for item in perguntas_gabarito
+    ]
+    client.create_examples(dataset_id=dataset.id, examples=examples)
+    print(f"Dataset '{DATASET_NOME}' criado com {len(examples)} exemplos.")
+    return DATASET_NOME
+
+
+def criar_target(chain: Runnable):
+    """Cria uma função target compatível com client.evaluate(),
+    que invoca a chain de RAG fornecida a partir dos inputs
+    do dataset do LangSmith.
+    """
+    def target(inputs: dict) -> dict:
+        resposta = chain.invoke(inputs["question"])
+        return {"answer": resposta}
+    return target

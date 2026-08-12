@@ -11,9 +11,10 @@ import os
 
 load_dotenv()
 
-huggingface_api_key: str | None = os.getenv("HF_TOKEN")
-langsmith_api_key: str | None = os.getenv("LANGSMITH_API_KEY")
-#pinecone_api_key: str | None = os.getenv("PINECONE_API_KEY")
+HUGGIINGFACE_API_KEY: str | None = os.getenv("HF_TOKEN")
+LANGSMITH_API_KEY: str | None = os.getenv("LANGSMITH_API_KEY")
+#PINECONE_API_KEY: str | None = os.getenv("PINECONE_API_KEY")
+OPENROUTER_API_KEY: str | None = os.getenv("OPENROUTER_API_KEY")
 
 BASE_DIR: Path = pathlib.Path(__file__).parent
 CLIENT_FOLDER: str = 'docs/Mercado_Central_24h/'
@@ -24,6 +25,7 @@ EMBEDDING_MODEL: str = 'bge-m3'
 QUERY_MODEL: str = 'gemma3:1b'
 LLM_MODEL: str = 'llama3.2'
 LLM_EVAL_MODEL: str = 'qwen3:4b'
+OPENROUTER_JUDGE_MODEL: str = "nvidia/nemotron-3-super-120b-a12b:free"
 CHUNK_SIZE: int = 1250
 CHUNK_OVERLAP: int = 125
 

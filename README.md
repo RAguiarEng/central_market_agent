@@ -33,8 +33,9 @@ RAG/
 ├── rag.py              # Entry point — executa e compara as estratégias
 ├── rag_test.py         # Script de prototipagem (script monolítico original)
 ├── requirements.txt    # Dependências fixadas com versões exatas
-├── .env                # Variáveis de ambiente (NÃO comitar)
-├── .gitignore          # Ignora .env e faiss_index/
+├── .env                # Variáveis de ambiente
+├── .gitignore          # Ignora arquivos restritos
+├── img/
 └── docs/
     └── Mecado_Central_24h/
         ├── FAQ_Clientes_Funcionarios.pdf
@@ -61,7 +62,7 @@ Três tipos de RAG são avaliados para encontrar a melhor arquitetura de atendim
 
 > A query reescrita é usada **somente** na busca. O prompt final sempre recebe a pergunta original do usuário.
 
-### RAG Multi-Query *(implementado em `rag_strategies.py`)*
+### RAG Multi-Query
 
 **Futuramente, colocar uma imagem do LangSmith.**
 
@@ -134,7 +135,7 @@ LANGSMITH_API_KEY=sua_chave_langsmith
 LANGSMITH_PROJECT="RAG_Oracle"
 ```
 
-> ⚠️ **Nunca comite o arquivo `.env`!** Ele já está no `.gitignore`.
+>![note] **Nunca comite o arquivo `.env`!** Ele já está listado no `.gitignore`.
 
 ---
 
@@ -172,4 +173,4 @@ Os documentos utilizados pertencem a uma empresa fictícia chamada **Mercado Cen
 
 ## 📝 Licença
 
-Projeto de estudo — sem licença formal. Uso livre para fins educacionais.
+Projeto de estudo — com licença MIT. Uso livre para fins educacionais.

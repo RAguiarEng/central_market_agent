@@ -1,6 +1,6 @@
 """ Carregamento e indexação de documentos em vectorstore para agentes especialistas.
 Autor: Rodrigo Aguiar
-Data: 30/07/2026 (Atualizado para arquitetura multiagente)
+Data: 12/08/2026
 """
 
 import os

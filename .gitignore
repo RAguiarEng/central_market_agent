@@ -29,6 +29,7 @@ dist/
 *.sqlite3
 anotacoes.md
 faiss_index/
+test_specialist.py
 
 # Logs
 *.log

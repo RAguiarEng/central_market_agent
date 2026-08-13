@@ -27,9 +27,9 @@ LLM_REWRITE: str = 'gemma3:1b'      # modelo local (antes era o QUERY_MODEL)
 
 # --- Configurações de RAG ---
 # Tamanho dos pedaços de texto ao dividir os documentos
-CHUNK_SIZE: int = 1000
+CHUNK_SIZE: int = 500
 # Tamanho da sobreposição entre os pedaçoes para manter contexto
-CHUNK_OVERLAP: int = 200
+CHUNK_OVERLAP: int = 100
 # Qde de pedaços a serem recuperados por busca
 TOP_K_RETRIEVAL: int = 5
 

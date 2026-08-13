@@ -30,6 +30,7 @@ dist/
 anotacoes.md
 faiss_index/
 test_specialist.py
+test_supervisor.py
 
 # Logs
 *.log

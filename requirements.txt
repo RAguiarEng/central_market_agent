@@ -16,6 +16,7 @@ langsmith
 datasets
 ragas
 pandas
+pydantic
 matplotlib
 seaborn
 streamlit

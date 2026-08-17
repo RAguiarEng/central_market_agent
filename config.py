@@ -24,7 +24,7 @@ OPENROUTER_API_KEY: str | None = os.getenv("OPENROUTER_API_KEY")
 # Modelo de embeddings para vetorização de documentos e queries
 EMBEDDING_MODEL: str = 'bge-m3'                     # modelo local (2ª opção: modelos do Cohere)
 # Modelo principal de LLM para síntese de respostas pelos agentes especialistas
-LLM_MAIN: str = 'llama3.2'                          # modelo local (antes era o LLM_MODEL)
+LLM_MAIN: str = 'nvidia/nemotron-3-super-120b-a12b:free'                          # modelo local (antes era o LLM_MODEL)
 # Modelo para o agente supervisor
 LLM_SUPERVISOR: str = 'nvidia/nemotron-3.5-lightning:free'  # via OpenRouter
 # Modelo de LLM leve para reescrita de query (pode ser usado pelo supervisor futuramente)

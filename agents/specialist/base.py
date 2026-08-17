@@ -6,11 +6,13 @@ Data: 12/08/2026
 # RAG/agents/specialist/base.py
 
 import os
+import time
 from typing import Dict, Any, List
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain_ollama import ChatOllama
+#from langchain_ollama import ChatOllama
+from langchain_openrouter import ChatOpenRouter
 from loguru import logger
 from datetime import datetime
 from langchain_core.documents import Document # Importar Document para tipagem
@@ -30,7 +32,7 @@ class SpecialistAgent:
         logger.info(f"Inicializando Agente Especialista '{self.name}'...")
         self.vector_store = get_or_create_faiss_index_for_specialist(name)
         self.retriever = self.vector_store.as_retriever(search_kwargs={"k": TOP_K_RETRIEVAL})
-        self.llm = ChatOllama(model=LLM_MAIN)
+        self.llm = ChatOpenRouter(model=LLM_MAIN)
         self.prompt = self._build_prompt()
         # A cadeia de geração será construída e invocada dentro do método 'invoke'
         logger.success(f"Agente Especialista '{self.name}' inicializado com sucesso.")
@@ -38,9 +40,10 @@ class SpecialistAgent:
     def _build_prompt(self):
         """Constrói o prompt para o LLM do especialista."""
         template = """Você é um agente especialista em {specialist_name} do Mercado Central 24H.
-        Sua tarefa é responder à pergunta do usuário APENAS com base no contexto fornecido.
-        Se a resposta não puder ser encontrada no contexto, diga que não sabe.
-        Não invente informações.
+        Sua tarefa é responder à pergunta do usuário utilizando o contexto fornecido.
+        Se a resposta não estiver diretamente no contexto, tente inferir a informação mais provável com base no que foi fornecido.
+        Se, mesmo com inferência, a resposta não puder ser razoavelmente construída a partir do contexto, diga que não sabe.
+        Não invente informações que não tenham qualquer base no contexto.
 
         Contexto:
         {context}
@@ -69,8 +72,16 @@ class SpecialistAgent:
         logger.info(f"Agente '{self.name}' recebendo query para context_id '{context_id}': '{query}'")
         retrieved_docs_content: List[str] = []
         try:
+            start_time = time.time() # Inicia contagem de tempo
+
             # 1. Recuperar documentos relevantes usando o retriever
             retrieved_docs: List[Document] = self.retriever.invoke(query)
+
+            # --- LOG de recuperação de documento
+            logger.debug(f"Agente ´{self.name}' recuperou {len(retrieved_docs)} documentos para a query '{query}'.")
+            for i, doc in enumerate(retrieved_docs):
+                logger.debug(f"  Documento {i+1} (Fonte: {doc.metadata.get('source', 'N/A', )}): {doc.page_content[:500]}...")  # loga os 500 primeiros caracteres
+
             retrieved_docs_content = [doc.page_content for doc in retrieved_docs]
 
             # 2. Formatar o contexto para o LLM (uma única string com todos os chunks)

@@ -9,7 +9,7 @@ from typing import Dict, Any
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 from langchain_core.runnables import RunnablePassthrough
-from langchain_ollama import ChatOllama # Manter para referência, mas não será usado
+# from langchain_ollama import ChatOllama # Manter para referência, mas não será usado
 from langchain_openrouter import ChatOpenRouter
 from loguru import logger
 from datetime import datetime

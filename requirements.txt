@@ -7,6 +7,7 @@ langchain-google-genai
 langchain-openrouter
 langchain-text-splitters
 langchain-experimental
+langchain-cohere
 langchain-core
 langgraph
 loguru

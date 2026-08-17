@@ -19,12 +19,13 @@ LANGSMITH_PROJECT: str = os.getenv("LANGSMITH_PROJECT")
 
 # --- Configurações de API --- 
 OPENROUTER_API_KEY: str | None = os.getenv("OPENROUTER_API_KEY")
+COHERE_API_KEY: str | None = os.getenv("COHERE_API_KEY")
 
 # --- Configurações de Modelos ---
 # Modelo de embeddings para vetorização de documentos e queries
-EMBEDDING_MODEL: str = 'bge-m3'                     # modelo local (2ª opção: modelos do Cohere)
+EMBEDDING_MODEL: str = 'embed-multilingual-v3.0'                                        # via COHERE
 # Modelo principal de LLM para síntese de respostas pelos agentes especialistas
-LLM_MAIN: str = 'nvidia/nemotron-3-super-120b-a12b:free'                          # modelo local (antes era o LLM_MODEL)
+LLM_MAIN: str = 'nvidia/nemotron-3-super-120b-a12b:free'                                # via OpenRouter
 # Modelo para o agente supervisor
 LLM_SUPERVISOR: str = 'nvidia/nemotron-3.5-lightning:free'  # via OpenRouter
 # Modelo de LLM leve para reescrita de query (pode ser usado pelo supervisor futuramente)
@@ -58,14 +59,3 @@ SPECIALIST_FAISS_INDEXES: dict = {
     name: os.path.join(FAISS_INDEX_PATH, f"{name}_faiss_index")
     for name in SPECIALIST_DOCUMENTS.keys()
 }
-
-# Informações antigas:
-#BASE_DIR: Path = pathlib.Path(__file__).parent
-#CLIENT_FOLDER: str = 'docs/Mercado_Central_24h/'
-#DOC_PATH: str = str(BASE_DIR / CLIENT_FOLDER)
-#INDEX_PATH: str = str(BASE_DIR / "faiss_index") 
-#HUGGIINGFACE_API_KEY: str | None = os.getenv("HF_TOKEN")
-#PINECONE_API_KEY: str | None = os.getenv("PINECONE_API_KEY")
-#LLM_EVAL_MODEL: str = 'qwen3:4b'
-#OPENROUTER_JUDGE_MODEL: str = "nvidia/nemotron-3-super-120b-a12b:free"
-#AVALIAR_RAG: bool = True

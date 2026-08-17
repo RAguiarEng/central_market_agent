@@ -8,7 +8,8 @@ import os
 # Bibliotecas externas
 from langchain_community.document_loaders import PyPDFLoader            # Usado para carregar PDFs individuais
 from langchain_text_splitters import RecursiveCharacterTextSplitter     # Splitter mais robusto
-from langchain_ollama import OllamaEmbeddings                           # Modelo de embeddings do Ollama (lembrete: modelos do Cohere são 2ª opção)
+# from langchain_ollama import OllamaEmbeddings                           # Modelo de embeddings do Ollama (lembrete: modelos do Cohere são 2ª opção)
+from langchain_cohere import CohereEmbeddings
 from langchain_community.vectorstores import FAISS
 from loguru import logger # Para logging estruturado
 
@@ -17,6 +18,7 @@ from config import (
     DOCS_PATH,
     FAISS_INDEX_PATH,
     EMBEDDING_MODEL,
+    COHERE_API_KEY,
     CHUNK_SIZE,
     CHUNK_OVERLAP,
     SPECIALIST_DOCUMENTS,
@@ -51,9 +53,9 @@ def split_documents(documents):
 def get_embeddings():
     """Inicializa e retorna o modelo de embeddings do Ollama."""
     logger.info(f"Inicializando modelo de embeddings: {EMBEDDING_MODEL}")
-    return OllamaEmbeddings(model=EMBEDDING_MODEL)
+    return CohereEmbeddings(model=EMBEDDING_MODEL, cohere_api_key=COHERE_API_KEY)
 
-def create_and_save_faiss_index(chunks, index_path: str, embeddings: OllamaEmbeddings):
+def create_and_save_faiss_index(chunks, index_path: str, embeddings: CohereEmbeddings):
     """Cria um novo índice FAISS a partir dos chunks e o salva localmente."""
     if not chunks:
         logger.warning(f"Nenhum chunk fornecido para criar o índice em {index_path}. Pulando.")
@@ -65,7 +67,7 @@ def create_and_save_faiss_index(chunks, index_path: str, embeddings: OllamaEmbed
     logger.success(f"Índice FAISS salvo em: {index_path}")
     return vector_store
 
-def load_faiss_index(index_path: str, embeddings: OllamaEmbeddings):
+def load_faiss_index(index_path: str, embeddings: CohereEmbeddings):
     """Carrega um índice FAISS existente de um caminho local."""
     logger.info(f"Carregando índice FAISS de: {index_path}")
     try:

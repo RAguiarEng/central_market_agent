@@ -48,7 +48,7 @@ def call_supervisor_router(state: AgentState) -> Dict[str, Any]:
 
     # Invoca a parte do LLM da cadeia para obter a resposta bruta (AIMessage)
     # que contém o response_metadata. 
-    llm_response = (supervisor_agent.prompt | supervisor_agent.llm).invoke({"user_query": user_query})
+    llm_response = (supervisor_agent.router_prompt | supervisor_agent.llm).invoke({"user_query": user_query})
 
     # Usa o output_parser do supervisor para parsear o conteúdo da resposta do LLM 
     # no modelo Pydantic AgentSelection.
@@ -126,20 +126,27 @@ def call_specialist_agent(state: AgentState) -> Dict[str, Any]:
 
 def handle_general_query(state: AgentState) -> Dict[str, Any]:
     """
-    Nó para lidar com queries que o supervisor roteou para 'geral'.
-    Pode ser um LLM genérico ou uma mensagem padrão.
+    Nó para lidar com queries roteadas para 'geral'.
+    Utiliza o Supervisor para responder usando os dados do specialist_summaries.json.
     """
-    logger.info("Nó: Lidando com query geral...")
+    logger.info("Nó: Supervisor gerando resposta para query geral...")
     user_query = state["user_query"]
-    # Por enquanto, uma resposta padrão. Futuramente, pode ser um LLM genérico.
-    general_answer = f"Desculpe, não consegui encontrar um especialista específico para '{user_query}'. Por favor, tente reformular sua pergunta."
+    
+    start_time = datetime.now().timestamp()
+    
+    # Chama a nova cadeia do supervisor
+    general_answer = supervisor_agent.answer_general_query(user_query)
+    
+    end_time = datetime.now().timestamp()
+
     return {
         "final_answer": general_answer,
-        "specialist_tokens": 0,             # Não usa LLM, então 0 tokens
+        "specialist_tokens": 0,
         "specialist_cost": 0.0,
-        "specialist_latency": 0.0,
-        "current_agent": "general_handler"  # Indica que o handler geral acabou de rodar
+        "specialist_latency": end_time - start_time,
+        "current_agent": "general_handler"
     }
+
 
 def consolidate_response(state: AgentState) -> Dict[str, Any]:
     """

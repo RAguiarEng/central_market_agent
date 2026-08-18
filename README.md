@@ -35,7 +35,7 @@ RAG/
 │       ├── __init__.py
 │       ├── agent.py                      # Agente Supervisor (roteador)
 │       ├── models.py                     # Estruturas Pydantic (AgentSelection)
-│       └── specialist_summaries.json     # Metadados e escopos de cada especialista
+│       └── specialist_summaries.json     # Metadados e escopos para cada especialista
 ├── core/
 │   ├── __init__.py
 │   ├── protocols.py                      # Protocolo de Comunicação de Agentes (ACPMessage)
@@ -133,6 +133,7 @@ cp .env.example .env
 As seguintes imagens apresentam como o LangSmith registra a execução da cadeia de comandos. 
 
 `Input/User`: A pergunta enviada pelo usuário.
+
 `Output/AI`: A resposta retornada.
 
 ![agente_supervisor](img/langsmith_supervisor.png)
@@ -153,6 +154,8 @@ As próximas imagens apresentam o fluxo completo da cadeia executada.
 
 ![langsmith_02](img/langsmith_02.png)
 
+O registro do LangSmith é uma grande vantagem para avaliação do projeto, entender claramente a rota de execução e os gastos (tempo e tokens) envolvidos.
+
 ---
 
 ## 📄 Base de Conhecimento
@@ -164,7 +167,17 @@ Os documentos utilizados pertencem a uma empresa fictícia chamada **Mercado Cen
 - Política de Atendimento, Trocas e Devoluções
 - Regulamento Interno e Procedimentos Operacionais
 
-O arquivo `agents\supervisor\specialist_summaries.json` foi criado a partir dos metadados e dos sumários desses arquivos para servir como referência de roteamento para o agente especialista.
+O arquivo `specialist_summaries.json` foi criado a partir dos metadados e dos sumários desses arquivos para servir como referência de roteamento para o agente especialista. Adotei essa estratégia para evitar _prompts_ explicativos longos e assim reduzir gastos de tempo e de tokens no roteamento das tarefas. Ainda, os metadados contidos nesse `.json` também viabiliza curadoria dos arquivos `.pdf` de referência, como apresentado nestas imagens:
+
+**Exemplo 01:**
+
+![chat_versao_arquivos](img/chat_versao_arquivos.png)
+
+**Exemplo 02:**
+
+"[chat_depto_arquivos](img/chat_depto_arquivos.png)
+
+Essa estyratégia também é útil para o agente supervisor tentar responder perguntas genéricas, que são aquelas não encontradas no conteúdo dos arquivos. Se mesmo no arquivo `.json` não for encontrada a resposta, o supervisor retorna uma mensagem de desculpas ou orienta o usuário buscar mais informações em outras fontes, por exemplo, no site do mercado.
 
 ---
 
@@ -257,6 +270,75 @@ sudo journalctl -u streamlit.service -f
 
 # Testar renovação do certificado SSL (simulação)
 sudo certbot renew --dry-run
+```
+
+---
+
+## 🔄 Atualizando a Instância OCI após Alterações no GitHub
+
+Sempre que eu enviar novas alterações para o repositório no GitHub, preciso repetir o processo abaixo na instância OCI para que a aplicação em produção reflita a versão mais recente do código.
+
+**Passo 1: Conectar via SSH à instância**
+
+```bash
+ssh ubuntu@<IP_da_instancia>
+```
+
+**Passo 2: Acessar a pasta do projeto**
+
+```bash
+cd ~/central_market_agent
+```
+
+**Passo 3: Buscar as atualizações do repositório**
+
+```bash
+git pull origin main
+```
+
+> Substituo `main` pelo nome da branch correta, caso utilize outra.
+
+**Passo 4: Ativar o ambiente virtual**
+
+```bash
+source .venv/bin/activate
+```
+
+**Passo 5: Atualizar as dependências (caso o `requirements.txt` tenha mudado)**
+
+```bash
+pip install -r requirements.txt
+```
+
+**Passo 6: Reiniciar o serviço do Streamlit**
+
+Como a aplicação é gerenciada pelo `systemd`, não preciso encerrar processos manualmente — basta reiniciar o serviço:
+
+```bash
+sudo systemctl restart streamlit.service
+```
+
+**Passo 7: Verificar se o serviço subiu corretamente**
+
+```bash
+sudo systemctl status streamlit.service
+```
+
+**Passo 8: Testar a aplicação**
+
+Acesso `https://app.rsa.ia.br` no navegador e confirmo que as alterações foram aplicadas corretamente.
+
+---
+
+### Resumo rápido (comandos em sequência)
+
+```bash
+cd ~/central_market_agent
+git pull origin main
+source .venv/bin/activate
+pip install -r requirements.txt
+sudo systemctl restart streamlit.service
+sudo systemctl status streamlit.service
 ```
 
 ---

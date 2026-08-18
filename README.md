@@ -1,6 +1,6 @@
 <h1 align="center">Agente Supervisor-Especialistas: RAG Aplicado ao Atendimento do Mercado Central 24h</h1>
 
-<h3 align="center">Entregável do Programa ONE</h3>
+<h3 align="center">Entregável do Programa ONE - G10</h3>
 
 <p align="center">
   <img src="img/programa_ONE.png" alt="Programa ONE" height="400">

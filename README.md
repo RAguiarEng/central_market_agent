@@ -169,6 +169,117 @@ O arquivo `agents\supervisor\specialist_summaries.json` foi criado a partir dos 
 
 ---
 
+## 🌐 Deploy em Produção (Oracle Cloud Infrastructure)
+
+A aplicação está publicada em produção no endereço **[https://app.rsa.ia.br](https://app.rsa.ia.br)**, hospedada em uma instância de computação (VM) na **Oracle Cloud Infrastructure (OCI)**.
+
+### Arquitetura de Infraestrutura
+
+Usuário → DNS (app.rsa.ia.br) → OCI (Security List + NSG) → Instância Ubuntu 
+├── iptables (firewall do SO) 
+├── Nginx (reverse proxy + SSL) 
+└── Streamlit (gerenciado via systemd, porta 8501)
+
+- **DNS:** o subdomínio `app.rsa.ia.br` aponta para o IP público da instância OCI, enquanto o domínio principal `rsa.ia.br` permanece hospedado separadamente no GitHub Pages.
+- **Rede OCI:** liberação de tráfego HTTP (80) e HTTPS (443) configurada na *Security List* da VCN e no *Network Security Group (NSG)* associado à instância.
+- **Firewall do sistema operacional (`iptables`):** regras de `ACCEPT` adicionadas para as portas 80, 443 e 8501, persistidas com `netfilter-persistent`.
+- **Nginx:** atua como *reverse proxy*, encaminhando as requisições recebidas em `app.rsa.ia.br` para a aplicação Streamlit rodando localmente na porta `8501`.
+- **HTTPS:** certificado SSL gratuito emitido via **Let's Encrypt (Certbot)**, com renovação automática agendada (`certbot.timer`).
+- **Persistência do Streamlit:** a aplicação é gerenciada por um serviço **`systemd`**, garantindo que ela inicie automaticamente com o sistema operacional e reinicie sozinha em caso de falha.
+
+### Configuração do Nginx
+
+- Arquivo: `/etc/nginx/sites-available/streamlit_app`
+
+```bash
+server {
+    listen 80;
+    listen [::]:80;
+    server_name app.rsa.ia.br;
+
+    location / {
+        proxy_pass http://localhost:8501/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+}
+```
+
+> Após a execução do Certbot (`sudo certbot --nginx -d app.rsa.ia.br`), este arquivo é automaticamente atualizado com os blocos de `listen 443 ssl;` e o redirecionamento de HTTP para HTTPS.
+
+### Serviço `systemd` do Streamlit
+
+Configurei um serviço `systemd` para que o Streamlit inicie automaticamente sempre que a instância for reiniciada, e se reinicie sozinho em caso de falha.
+
+- Arquivo: `/etc/systemd/system/streamlit.service`
+
+```bash
+[Unit]
+Description=Streamlit App - Central Market Agent
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/central_market_agent
+ExecStart=/home/ubuntu/central_market_agent/.venv/bin/streamlit run app.py --server.port 8501 --server.address 0.0.0.0
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Após criar o arquivo, habilitei o serviço para iniciar junto com o sistema operacional e o inicializei:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable streamlit.service
+sudo systemctl start streamlit.service
+```
+
+**Comandos úteis para manutenção:**
+
+```bash
+# Verificar status do serviço
+sudo systemctl status streamlit.service
+
+# Reiniciar o serviço manualmente
+sudo systemctl restart streamlit.service
+
+# Ver logs em tempo real
+sudo journalctl -u streamlit.service -f
+
+# Testar renovação do certificado SSL (simulação)
+sudo certbot renew --dry-run
+```
+
+---
+
+## 🧩 Desafios
+
+Durante a publicação da aplicação em produção na OCI, enfrentei uma sequência de bloqueios em diferentes camadas de rede e infraestrutura. Segue documentação do diagnóstico e a solução de cada um, na ordem em que foram identificados:
+
+| # | Desafio | Diagnóstico | Solução |
+|---|---|---|---|
+| 1 | Conexão externa expirando (timeout) | Faltava regra de rota associada ao *Internet Gateway* na *Route Table* da VCN | Adicionada a rota `0.0.0.0/0 → Internet Gateway` |
+| 2 | Conexão externa ainda expirando | *Network Security Group (NSG)* da instância sem regras de entrada para as portas 80/443 | Adicionadas regras de *ingress* liberando as portas 80 e 443 no NSG |
+| 3 | Conexão local funcionando, mas externa bloqueada | `iptables` do sistema operacional permitindo apenas a porta 22 (SSH) para novas conexões | Adicionadas regras `ACCEPT` para as portas 80, 443 e 8501 no `iptables`, persistidas com `iptables-persistent` |
+| 4 | Nginx exibindo página padrão em vez do Streamlit | Site `default` do Nginx ainda ativo, conflitando com a configuração do domínio | Removido o link simbólico `/etc/nginx/sites-enabled/default` |
+| 5 | Nginx retornando 404 na raiz do domínio | Bloco `location` configurado para `/streamlit-app/` em vez da raiz `/` | Configuração ajustada para `location /`, alinhada à estratégia de subdomínio dedicado |
+| 6 | Erro `502 Bad Gateway` | Processo do Streamlit não estava em execução (havia sido encerrado junto com a sessão SSH anterior) | Processo reiniciado, e posteriormente migrado para um serviço `systemd` para evitar o problema de forma definitiva |
+| 7 | Comando `streamlit` não encontrado (`Exit 127`) | Ambiente virtual (`.venv`) do projeto não estava ativado na sessão do terminal | Ativação do `.venv` antes de iniciar a aplicação, e referência ao caminho absoluto do binário no serviço `systemd` |
+
+Após a resolução completa dessa cadeia de causas, a aplicação passou a ser publicada com sucesso via HTTPS, com renovação automática de certificado e reinício automático em caso de falha ou reboot da instância.
+
+---
+
 ## 📝 Licença
 
 Projeto de estudo — com licença MIT. Uso livre para fins educacionais.

@@ -22,3 +22,4 @@ pydantic
 matplotlib
 seaborn
 streamlit
+pypdf

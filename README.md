@@ -27,21 +27,33 @@ O Agente está aberto a qualquer colaborador da empresa, sem necessidade de aces
 
 ```
 RAG/
-├── config.py           # Configurações centrais (paths, modelos, chunking)
-├── indexing.py         # Carregamento de PDFs e criação/cache do índice FAISS
-├── rag_strategies.py   # Implementação das chains de RAG
-├── rag.py              # Entry point — executa e compara as estratégias
-├── rag_test.py         # Script de prototipagem (script monolítico original)
-├── requirements.txt    # Dependências fixadas com versões exatas
-├── .env                # Variáveis de ambiente
-├── .gitignore          # Ignora arquivos restritos
-├── img/
-└── docs/
-    └── Mecado_Central_24h/
-        ├── FAQ_Clientes_Funcionarios.pdf
-        ├── Manual_Fornecedores_Politica_Compras.pdf
-        ├── Politica_Atendimento_Trocas_Devolucoes.pdf
-        └── Regulamento_Interno_Procedimentos_Operacionais.pdf
+├── agents/
+│   ├── specialist/
+│   │   ├── __init__.py
+│   │   └── base.py                       # Classe base dos agentes especialistas
+│   └── supervisor/
+│       ├── __init__.py
+│       ├── agent.py                      # Agente Supervisor (roteador)
+│       ├── models.py                     # Estruturas Pydantic (AgentSelection)
+│       └── specialist_summaries.json     # Metadados e escopos de cada especialista
+├── core/
+│   ├── __init__.py
+│   ├── protocols.py                      # Protocolo de Comunicação de Agentes (ACPMessage)
+│   └── state.py                          # Estrutura do estado global (AgentState)
+├── docs/
+│   └── Mercado_Central_24h/              # Documentos PDF de base de conhecimento
+│       ├── FAQ_Clientes_Funcionarios.pdf
+│       ├── Manual_Fornecedores_Politica_Compras.pdf
+│       ├── Politica_Atendimento_Trocas_Devolucoes.pdf
+│       └── Regulamento_Interno_Procedimentos_Operacionais.pdf
+├── faiss_index/                          # Índices FAISS gerados automaticamente
+├── app.py                                # Interface gráfica em Streamlit (Entry Point)
+├── config.py                             # Configurações globais, paths e modelos
+├── indexing.py                           # Criação e carregamento dos índices FAISS
+├── rag_multiagent.py                     # Definição do grafo de fluxo LangGraph
+├── requirements.txt                      # Dependências do projeto
+├── .env                                  # Chaves de API e configurações de ambiente
+└── .gitignore                            # Arquivos ignorados pelo controle de versão
 ```
 
 > O índice FAISS (`faiss_index/`) é gerado localmente e ignorado pelo `.gitignore`.
@@ -50,32 +62,23 @@ RAG/
 
 ## 🏗️ Arquitetura
 
-Três tipos de RAG são avaliados para encontrar a melhor arquitetura de atendimento do agente.
+A arquitetura atual é baseada em um padrão **Supervisor-Especialistas** gerenciado pelo **LangGraph**:
 
-### RAG Simples
+1. **Agente Supervisor (`SupervisorAgent`):**
 
-**Futuramente, colocar uma imagem do LangSmith.**
+- Analisa a pergunta do usuário e decide para qual especialista direcionar a solicitação com base em resumos de escopo estruturados em `specialist_summaries.json`.
+- Se a pergunta não se encaixar em nenhuma especialidade, ele direciona para um manipulador geral (`general`).
+- Implementado usando o modelo [`nvidia/nemotron-3.5-lightning:free`](https://openrouter.ai/nvidia/nemotron-3.5-lightning:free) via OpenRouter.
 
-### RAG com Reescrita de Query
+2. **Agentes Especialistas (`SpecialistAgent`):**
 
-**Futuramente, colocar uma imagem do LangSmith.**
+- Cada especialista gerencia um índice vetorial (FAISS) criado a partir de um documento PDF específico.
+- Eles realizam buscas semânticas locais (RAG) utilizando o modelo [`embed-multilingual-v3.0`](https://docs.cohere.com/docs/cohere-embed), via OpenRouter, e geram uma resposta focada.
+- Implementados usando o modelo [`nvidia/nemotron-3-super-120b-a12b:free`](https://openrouter.ai/nvidia/nemotron-3-super-120b-a12b:free) via OpenRouter.
 
-> A query reescrita é usada **somente** na busca. O prompt final sempre recebe a pergunta original do usuário.
+3. **Interface Streamlit (`app.py`):**
 
-### RAG Multi-Query
-
-**Futuramente, colocar uma imagem do LangSmith.**
-
-Gera 3 variações da pergunta original → busca em paralelo → deduplica documentos → responde com a query original.
-
-
-| Estratégia | Descrição |
-|---|---|
-| **RAG Simples** | A query original do usuário é usada diretamente na busca vetorial |
-| **RAG com Reescrita** | Um LLM leve reescreve a query antes da busca, otimizando a recuperação semântica |
-| **RAG Multi-Query** | Gera múltiplas variações da pergunta, amplia a cobertura e deduplica os documentos recuperados |
-
-Todas as execuções são rastreadas via **LangSmith**, permitindo comparar os traces lado a lado.
+- Chat interativo que exibe o andamento da conversa e apresenta métricas em tempo real (latência, consumo de tokens e custo estimado).
 
 
 ---
@@ -83,13 +86,7 @@ Todas as execuções são rastreadas via **LangSmith**, permitindo comparar os t
 ## ⚙️ Pré-requisitos
 
 - Python 3.11+
-- [Ollama](https://ollama.com/) instalado e rodando localmente
-- Modelos Ollama baixados:
-  ```bash
-  ollama pull llama3.2
-  ollama pull bge-m3
-  ollama pull gemma3:1b
-  ```
+- `API Key` da OpenRouter e do Cohere
 - Conta no [LangSmith](https://smith.langchain.com/) (opcional, mas recomendado para rastreamento)
 
 ---
@@ -115,9 +112,6 @@ cp .env.example .env
 
 # 5. Coloque seus PDFs na pasta docs/
 # (a estrutura de subpastas é carregada automaticamente pelo DirectoryLoader)
-
-# 6. Execute
-python rag.py
 ```
 
 ---
@@ -132,7 +126,7 @@ HF_TOKEN=seu_token_huggingface
 LANGSMITH_TRACING=true
 LANGSMITH_ENDPOINT=https://api.smith.langchain.com
 LANGSMITH_API_KEY=sua_chave_langsmith
-LANGSMITH_PROJECT="RAG_Oracle"
+LANGSMITH_PROJECT="Nome_do_seu_projeto"
 ```
 
 > ⚠️ **Nunca comite o arquivo `.env`!** Ele já está listado no `.gitignore`.
@@ -143,21 +137,22 @@ LANGSMITH_PROJECT="RAG_Oracle"
 
 | Papel | Modelo | Onde roda |
 |---|---|---|
-| Chunking e Embeddings | `BAAI/bge-m3` | [HuggingFace Hub](https://huggingface.co/BAAI/bge-m3) |
-| LLM principal (resposta) | `llama3.2` | [Ollama (local)](https://ollama.com/library/llama3.2) |
-| LLM auxiliar (reescrita) | `gemma3:1b` | [Ollama (local)](https://ollama.com/library/gemma3:1b) |
-| LLM avaliador de RAG (1ª opção) | `nvidia/nemotron-3-super-120b-a12b:free` | [OpenRouter](https://openrouter.ai/nvidia/nemotron-3-super-120b-a12b:free) |
-| LLM avaliador de RAG (2ª opçção) | `qwen3:4b` | [Ollama (local)](https://ollama.com/library/qwen3:4b) |
-
+| Chunking e Embeddings | `embed-multilingual-v3.0` | [Cohere](https://docs.cohere.com/docs/cohere-embed) |
+| LLM principal (resposta) | `nvidia/nemotron-3-super-120b-a12b:free` | [OpenRouter](https://openrouter.ai/nvidia/nemotron-3-super-120b-a12b:free) |
+| LLM supervisor (roteamento) | `nvidia/nemotron-3.5-lightning:free` | [OpenRouter](https://openrouter.ai/nvidia/nemotron-3.5-lightning:free) |
 ---
 
 ## 📊 Rastreamento com LangSmith
 
-Cada execução do `rag.py` envia dois traces para o LangSmith:
-- `rag_simples` — com tags `["rag_simples", "sem_reescrita"]`
-- `rag_com_reescrita` — com tags `["rag_com_reescrita", "reescrita"]`
+### Registro da cadeia em execução
 
-Isso permite comparar, lado a lado, a qualidade dos documentos recuperados e das respostas geradas por cada abordagem.
+#### Exemplo 01
+
+![langsmith_01](img/langsmith_01.png)
+
+#### Exemplo 02
+
+![langsmith_02](img/langsmith_02.png)
 
 ---
 
@@ -169,6 +164,8 @@ Os documentos utilizados pertencem a uma empresa fictícia chamada **Mercado Cen
 - Manual de Fornecedores e Política de Compras
 - Política de Atendimento, Trocas e Devoluções
 - Regulamento Interno e Procedimentos Operacionais
+
+O arquivo `agents\supervisor\specialist_summaries.json` foi criado a partir dos metadados e dos sumários desses arquivos para servir como referência de roteamento para o agente especialista.
 
 ---
 

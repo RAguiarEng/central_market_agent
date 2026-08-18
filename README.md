@@ -175,7 +175,7 @@ O arquivo `specialist_summaries.json` foi criado a partir dos metadados e dos su
 
 **Exemplo 02:**
 
-"[chat_depto_arquivos](img/chat_depto_arquivos.png)
+![chat_depto_arquivos](img/chat_depto_arquivos.png)
 
 Essa estyratégia também é útil para o agente supervisor tentar responder perguntas genéricas, que são aquelas não encontradas no conteúdo dos arquivos. Se mesmo no arquivo `.json` não for encontrada a resposta, o supervisor retorna uma mensagem de desculpas ou orienta o usuário buscar mais informações em outras fontes, por exemplo, no site do mercado.
 
@@ -187,10 +187,13 @@ A aplicação está publicada em produção no endereço **[https://app.rsa.ia.b
 
 ### Arquitetura de Infraestrutura
 
-Usuário → DNS (app.rsa.ia.br) → OCI (Security List + NSG) → Instância Ubuntu 
+```
+Usuário → DNS (app.rsa.ia.br) → OCI (Security List + NSG) → Instância Ubuntu
+
 ├── iptables (firewall do SO) 
 ├── Nginx (reverse proxy + SSL) 
 └── Streamlit (gerenciado via systemd, porta 8501)
+```
 
 - **DNS:** o subdomínio `app.rsa.ia.br` aponta para o IP público da instância OCI, enquanto o domínio principal `rsa.ia.br` permanece hospedado separadamente no GitHub Pages.
 - **Rede OCI:** liberação de tráfego HTTP (80) e HTTPS (443) configurada na *Security List* da VCN e no *Network Security Group (NSG)* associado à instância.
@@ -328,7 +331,6 @@ sudo systemctl status streamlit.service
 
 Acesso `https://app.rsa.ia.br` no navegador e confirmo que as alterações foram aplicadas corretamente.
 
----
 
 ### Resumo rápido (comandos em sequência)
 

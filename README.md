@@ -1,6 +1,6 @@
-<h1 align="center">Agente de Inteligência Artificial</h1>
+<h1 align="center">Agente Supervisor-Especialistas: RAG Aplicado ao Atendimento do Mercado Central 24h</h1>
 
-<h3 align="center">Entregável do Programa ONE para certificação.</h3>
+<h3 align="center">Entregável do Programa ONE</h3>
 
 <p align="center">
   <img src="img/programa_ONE.png" alt="Programa ONE" height="400">
@@ -53,6 +53,7 @@ RAG/
 ├── rag_multiagent.py                     # Definição do grafo de fluxo LangGraph
 ├── requirements.txt                      # Dependências do projeto
 ├── .env                                  # Chaves de API e configurações de ambiente
+├── .env.example                          # Exemplo do conteúdo de .env
 └── .gitignore                            # Arquivos ignorados pelo controle de versão
 ```
 
@@ -107,26 +108,11 @@ python -m venv .venv
 pip install -r requirements.txt
 
 # 4. Configure as variáveis de ambiente
-# Copie o arquivo de exemplo e preencha com suas chaves:
+# Copie o arquivo .env.example e preencha com suas chaves em .env
 cp .env.example .env
 
 # 5. Coloque seus PDFs na pasta docs/
 # (a estrutura de subpastas é carregada automaticamente pelo DirectoryLoader)
-```
-
----
-
-## 🔑 Variáveis de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
-
-```env
-HF_TOKEN=seu_token_huggingface
-
-LANGSMITH_TRACING=true
-LANGSMITH_ENDPOINT=https://api.smith.langchain.com
-LANGSMITH_API_KEY=sua_chave_langsmith
-LANGSMITH_PROJECT="Nome_do_seu_projeto"
 ```
 
 > ⚠️ **Nunca comite o arquivo `.env`!** Ele já está listado no `.gitignore`.
@@ -144,13 +130,26 @@ LANGSMITH_PROJECT="Nome_do_seu_projeto"
 
 ## 📊 Rastreamento com LangSmith
 
-### Registro da cadeia em execução
+As seguintes imagens apresentam como o LangSmith registra a execução da cadeia de comandos. 
 
-#### Exemplo 01
+`Input/User`: A pergunta enviada pelo usuário.
+`Output/AI`: A resposta retornada.
+
+![agente_supervisor](img/langsmith_supervisor.png)
+
+Nessa imagem, verifica-se o consumo de tokens do agente supervisor (`supervisor_router`) no _input_ e no _output_, o tempo de execução em cada etapa da sua cadeia e o modelo utilizado.
+
+![agente_especialista](img/langsmith_especialista.png)
+
+Já nessa imagem da cadeia do agente especialista (`manual_fornecedores_compras`) verifica-se também a etapa de recuperação das informações na etapa `VectorStoreRetriever`. O agente supervisor o invocou, a partir do contexto da pergunta recebida. 
+
+As próximas imagens apresentam o fluxo completo da cadeia executada. 
+
+**Exemplo 01:**
 
 ![langsmith_01](img/langsmith_01.png)
 
-#### Exemplo 02
+**Exemplo 02:**
 
 ![langsmith_02](img/langsmith_02.png)
 

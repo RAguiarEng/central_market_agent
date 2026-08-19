@@ -21,6 +21,11 @@ Construir um **Agente de IA** focado em **responder perguntas de colaboradores d
 
 O Agente está aberto a qualquer colaborador da empresa, sem necessidade de acesso restrito.
 
+--- 
+## 🌐 Aplicação Online
+
+Acesso: [app.rsa.ia.br](https://app.rsa.ia.br)
+
 ---
 
 ## 🗂️ Estrutura do Projeto

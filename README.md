@@ -1,4 +1,4 @@
-[![English](https://img.shields.io/badge/Language-Ingl%C3%AAs-blue.svg)](README_en.md)
+[![English](https://img.shields.io/badge/Language-EnglishAAs-blue.svg)](README_en.md)
 
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat&logo=python&logoColor=white)
 ![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=flat&logo=langchain&logoColor=white)

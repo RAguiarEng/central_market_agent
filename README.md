@@ -131,6 +131,7 @@ cp .env.example .env
 | Chunking e Embeddings | `embed-multilingual-v3.0` | [Cohere](https://docs.cohere.com/docs/cohere-embed) |
 | LLM principal (resposta) | `nvidia/nemotron-3-super-120b-a12b:free` | [OpenRouter](https://openrouter.ai/nvidia/nemotron-3-super-120b-a12b:free) |
 | LLM supervisor (roteamento) | `nvidia/nemotron-3.5-lightning:free` | [OpenRouter](https://openrouter.ai/nvidia/nemotron-3.5-lightning:free) |
+
 ---
 
 ## 📊 Rastreamento com LangSmith
@@ -160,6 +161,14 @@ As próximas imagens apresentam o fluxo completo da cadeia executada.
 ![langsmith_02](img/langsmith_02.png)
 
 O registro do LangSmith é uma grande vantagem para avaliação do projeto, entender claramente a rota de execução e os gastos (tempo e tokens) envolvidos.
+
+---
+
+## 📊 Painel de Métricas
+
+Os parâmetros obtidos no LangSmith podem ser utilizados para apresentar uma métrica para o usuário. Dessa forma, é possível ter maior clareza dos gastos em cada requisição, bem como verificar qual agente foi o responsável pela entrega da resposta. 
+
+![painel_metricas](img/painel_metricas.png)
 
 ---
 

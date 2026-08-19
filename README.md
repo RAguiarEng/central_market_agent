@@ -1,5 +1,17 @@
 [![English](https://img.shields.io/badge/Idioma-Ingl%C3%AAs-blue.svg)](README_en.md)
 
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat&logo=python&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=flat&logo=langchain&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-Multi--Agent-1C3C3C?style=flat)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)
+![FAISS](https://img.shields.io/badge/FAISS-Vector%20Search-005571?style=flat)
+![Cohere](https://img.shields.io/badge/Cohere-Embeddings-39594C?style=flat)
+![OpenRouter](https://img.shields.io/badge/OpenRouter-LLM%20Gateway-000000?style=flat)
+![Oracle Cloud Infrastructure](https://img.shields.io/badge/Oracle%20Cloud-Infrastructure-F80000?style=flat&logo=oracle&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-Reverse%20Proxy-009639?style=flat&logo=nginx&logoColor=white)
+![Let's Encrypt](https://img.shields.io/badge/HTTPS-Let's%20Encrypt-003A70?style=flat&logo=letsencrypt&logoColor=white)
+![systemd](https://img.shields.io/badge/systemd-Service%20Manager-white?style=flat&logo=linux&logoColor=black)
+
 <h1 align="center">Agente Supervisor-Especialistas: RAG Aplicado ao Atendimento do Mercado Central 24h</h1>
 
 <h3 align="center">Entregável do Programa ONE - G10</h3>

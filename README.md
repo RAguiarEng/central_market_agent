@@ -1,3 +1,5 @@
+[![English](https://img.shields.io/badge/Idioma-Ingl%C3%AAs-blue.svg)](README_en.md)
+
 <h1 align="center">Agente Supervisor-Especialistas: RAG Aplicado ao Atendimento do Mercado Central 24h</h1>
 
 <h3 align="center">Entregável do Programa ONE - G10</h3>

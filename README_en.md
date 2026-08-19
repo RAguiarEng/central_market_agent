@@ -401,6 +401,12 @@ This project is under continuous development. Key areas I intend to address in f
 
 ---
 
+## 📌 Version History
+
+- **v1.0** (2026/08/19): first version published to production, featuring deployment on OCI, HTTPS via Let's Encrypt, persistence via `systemd`, and complete documentation of the troubleshooting and update process.
+
+---
+
 ## 📝 License
 
 Study project — under the MIT License. Free for educational purposes.

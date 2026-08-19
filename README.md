@@ -402,6 +402,12 @@ Este projeto está em evolução contínua. Alguns pontos que pretendo endereça
 
 ---
 
+## 📌 Histórico de Versões
+
+- **v1.0** (2026/08/19): primeira versão publicada em produção, com deploy na OCI, HTTPS via Let's Encrypt, persistência via `systemd` e documentação completa do processo de troubleshooting e atualização.
+
+---
+
 ## 📝 Licença
 
 Projeto de estudo — com licença MIT. Uso livre para fins educacionais.

@@ -368,6 +368,17 @@ Após a resolução completa dessa cadeia de causas, a aplicação passou a ser 
 
 ---
 
+## 🚧 Melhorias Futuras
+
+Este projeto está em evolução contínua. Alguns pontos que pretendo endereçar nas próximas iterações:
+
+- **Redução de latência no fluxo de fallback:** quando o Agente Supervisor não identifica um especialista adequado para a pergunta recebida, o tempo de resposta do fluxo geral (`general`) ainda está alto.
+- **Evolução da estrutura de *harness* do projeto:** aprimorar a organização de testes, avaliação e validação do comportamento dos agentes.
+- **Controle de uso dos modelos de LLM:** como a aplicação está publicada com acesso aberto, pretendo implementar mecanismos de limitação de uso (rate limiting) para preservar a sustentabilidade das chaves de API utilizadas.
+- **Suporte a múltiplas chaves de API e seleção de modelos por usuário:** avaliar formas de permitir que diferentes usuários utilizem suas próprias credenciais e/ou modelos de LLM preferidos, ampliando a flexibilidade e a escalabilidade da solução.
+
+---
+
 ## 📝 Licença
 
 Projeto de estudo — com licença MIT. Uso livre para fins educacionais.

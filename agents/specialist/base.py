@@ -1,21 +1,17 @@
 """ Coração da lógica de cada agente especialista.
 Autor: Rodrigo Aguiar
-Data: 12/08/2026
+Data: 12/08/2026 (Atualizado: 18/08/2026)
 """
-
-# RAG/agents/specialist/base.py
 
 import os
 import time
 from typing import Dict, Any, List
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
-from langchain_core.output_parsers import StrOutputParser
-#from langchain_ollama import ChatOllama
 from langchain_openrouter import ChatOpenRouter
 from loguru import logger
 from datetime import datetime
-from langchain_core.documents import Document # Importar Document para tipagem
+from langchain_core.documents import Document
 
 from core.protocols import ACPMessage
 from indexing import get_or_create_faiss_index_for_specialist
@@ -34,7 +30,6 @@ class SpecialistAgent:
         self.retriever = self.vector_store.as_retriever(search_kwargs={"k": TOP_K_RETRIEVAL})
         self.llm = ChatOpenRouter(model=LLM_MAIN)
         self.prompt = self._build_prompt()
-        # A cadeia de geração será construída e invocada dentro do método 'invoke'
         logger.success(f"Agente Especialista '{self.name}' inicializado com sucesso.")
 
     def _build_prompt(self):
@@ -53,56 +48,44 @@ class SpecialistAgent:
         Resposta:"""
         return ChatPromptTemplate.from_template(template).partial(specialist_name=self.name)
 
-    def _build_rag_generation_chain(self):
-        """
-        Constrói a cadeia de geração RAG que combina o prompt com o LLM.
-        Esta cadeia espera um dicionário com 'context' (string) e 'question' (string).
-        """
-        return (
-            self.prompt
-            | self.llm
-            | StrOutputParser()
-        )
-
     def invoke(self, query: str, context_id: str) -> ACPMessage:
         """
         Invoca o agente especialista com uma query e retorna uma mensagem ACP.
-        Para depuração, o payload incluirá os documentos recuperados.
+        Para depuração e métricas, o payload incluirá os documentos e os metadados de tokens.
         """
         logger.info(f"Agente '{self.name}' recebendo query para context_id '{context_id}': '{query}'")
         retrieved_docs_content: List[str] = []
         try:
-            start_time = time.time() # Inicia contagem de tempo
+            start_time = time.time()
 
             # 1. Recuperar documentos relevantes usando o retriever
             retrieved_docs: List[Document] = self.retriever.invoke(query)
 
-            # --- LOG de recuperação de documento
-            logger.debug(f"Agente ´{self.name}' recuperou {len(retrieved_docs)} documentos para a query '{query}'.")
-            for i, doc in enumerate(retrieved_docs):
-                logger.debug(f"  Documento {i+1} (Fonte: {doc.metadata.get('source', 'N/A', )}): {doc.page_content[:500]}...")  # loga os 500 primeiros caracteres
-
+            logger.debug(f"Agente '{self.name}' recuperou {len(retrieved_docs)} documentos para a query '{query}'.")
             retrieved_docs_content = [doc.page_content for doc in retrieved_docs]
 
-            # 2. Formatar o contexto para o LLM (uma única string com todos os chunks)
+            # 2. Formatar o contexto para o LLM
             context_for_llm = "\n\n".join(retrieved_docs_content)
 
-            # 3. Invocar a cadeia de geração RAG com o contexto e a pergunta
-            generation_chain = self._build_rag_generation_chain()
-            response_content = generation_chain.invoke({"context": context_for_llm, "question": query})
+            # 3. Invocar o LLM diretamente para preservar os metadados (AIMessage)
+            chain = self.prompt | self.llm
+            ai_message = chain.invoke({"context": context_for_llm, "question": query})
+
+            response_content = ai_message.content
 
             logger.info(f"Agente '{self.name}' gerou resposta para context_id '{context_id}'.")
 
-            # Incluir os documentos recuperados no payload para depuração
+            # 4. Incluir resposta, documentos e metadados de uso no payload
             payload = {
                 "answer": response_content,
                 "query": query,
-                "retrieved_docs": retrieved_docs_content # Adiciona o conteúdo dos documentos recuperados
+                "retrieved_docs": retrieved_docs_content,
+                "usage_metadata": getattr(ai_message, "usage_metadata", None),
+                "response_metadata": getattr(ai_message, "response_metadata", {})
             }
 
-            # TODO: Implementar cálculo de confiança e extração de fontes reais
-            confidence = 0.8 # Placeholder
-            sources = ["documento:" + self.name] # Placeholder
+            confidence = 0.8
+            sources = ["documento:" + self.name]
 
             return ACPMessage(
                 sender=self.name,

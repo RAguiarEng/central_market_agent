@@ -198,3 +198,24 @@ Suas Responsabilidades:
         except Exception as e:
             logger.error(f"Erro ao gerar resposta genérica no supervisor: {e}")
             return "Desculpe, ocorreu um erro ao consultar as informações institucionais. Como posso ajudar?"
+    
+    def answer_general_query_with_usage(self, user_query: str) -> Dict[str, Any]:
+        """Gera resposta para perguntas genéricas e retorna também o objeto AIMessage com os metadados de tokens."""
+        logger.info(f"Supervisor respondendo query genérica: '{user_query}'")
+        try:
+            # Invoca diretamente o prompt + llm (sem StrOutputParser) para manter os metadados
+            chain = self.general_qa_prompt | self.llm
+            ai_message = chain.invoke({"user_query": user_query})
+            return {
+                "answer": ai_message.content,
+                "usage_metadata": getattr(ai_message, "usage_metadata", None),
+                "response_metadata": getattr(ai_message, "response_metadata", {})
+            }
+        except Exception as e:
+            logger.error(f"Erro ao gerar resposta genérica no supervisor: {e}")
+            return {
+                "answer": "Desculpe, ocorreu um erro ao consultar as informações institucionais. Como posso ajudar?",
+                "usage_metadata": None,
+                "response_metadata": {}
+            }
+

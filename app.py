@@ -3,6 +3,7 @@ Autor: Rodrigo Aguiar (https://raguiar.eng.br)
 Data: 13/08/2026
 """
 
+import uuid
 import streamlit as st
 from loguru import logger
 from datetime import datetime
@@ -22,8 +23,9 @@ st.set_page_config(
 
 # --- Customização de Estilos (UI/UX Custom CSS) ---
 CUSTOM_CSS = """
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
     /* Fontes Globais */
     html, body, [class*="css"] {
@@ -105,64 +107,194 @@ CUSTOM_CSS = """
 
     /* Cards de Métricas da Sidebar */
     .metric-box {
-        background: rgba(30, 41, 59, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(30, 41, 59, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.07);
         border-radius: 12px;
-        padding: 12px 14px;
+        padding: 14px 16px;
         margin-bottom: 10px;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(8px);
+    }
+
+    .metric-box:hover {
+        border-color: rgba(56, 189, 248, 0.25);
+        background: rgba(30, 41, 59, 0.75);
     }
     
     .metric-label {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         color: #94a3b8;
         text-transform: uppercase;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        margin-bottom: 4px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
     }
 
     .metric-value {
-        font-size: 1.15rem;
+        font-size: 1.25rem;
         font-weight: 700;
-        color: #f1f5f9;
+        color: #f8fafc;
         font-family: 'Outfit', sans-serif;
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
     }
 
-    .agent-pill {
-        display: inline-block;
-        background: linear-gradient(90deg, #3b82f6, #06b6d4);
-        color: #ffffff;
-        padding: 3px 10px;
-        border-radius: 6px;
-        font-size: 0.82rem;
-        font-weight: 600;
+    .metric-unit {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #64748b;
+    }
+
+    .agent-badge-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         margin-top: 4px;
     }
 
-    /* Barra Lateral - Footer de Créditos */
+    .agent-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%);
+        color: #38bdf8;
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+    }
+
+    .cost-highlight {
+        color: #34d399;
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .metric-subtext {
+        font-size: 0.72rem;
+        color: #64748b;
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* Detalhes Técnicos dentro do Expander */
+    .tech-detail-card {
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin-bottom: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .tech-detail-key {
+        font-size: 0.76rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .tech-detail-val {
+        font-size: 0.8rem;
+        font-family: monospace;
+        color: #e2e8f0;
+        font-weight: 600;
+    }
+
+    /* Empty State na Sidebar */
+    .sidebar-empty-state {
+        background: rgba(30, 41, 59, 0.3);
+        border: 1px dashed rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        padding: 20px 16px;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .sidebar-empty-state i {
+        font-size: 1.5rem;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .sidebar-empty-state p {
+        font-size: 0.82rem;
+        color: #94a3b8;
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    /* Barra Lateral - Footer de Créditos e Redes */
     .sidebar-footer {
-        margin-top: 2.5rem;
+        margin-top: 1.5rem;
         padding-top: 1.2rem;
         border-top: 1px solid rgba(255, 255, 255, 0.08);
         text-align: center;
     }
 
-    .sidebar-footer p {
-        font-size: 0.82rem;
+    .sidebar-footer .author-title {
+        font-size: 0.85rem;
         color: #94a3b8;
-        margin: 0;
+        margin: 0 0 8px 0;
     }
 
-    .sidebar-footer a {
+    .sidebar-footer .author-title a {
         color: #38bdf8;
         text-decoration: none;
         font-weight: 600;
         transition: all 0.2s ease;
     }
 
-    .sidebar-footer a:hover {
+    .sidebar-footer .author-title a:hover {
         color: #0284c7;
         text-decoration: underline;
+    }
+
+    .sidebar-social-links {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+
+    .sidebar-social-links a {
+        color: #94a3b8;
+        font-size: 1.15rem;
+        transition: all 0.25s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .sidebar-social-links a:hover {
+        color: #38bdf8;
+        background: rgba(56, 189, 248, 0.12);
+        border-color: rgba(56, 189, 248, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .sidebar-footer .location-text {
+        font-size: 0.72rem;
+        color: #64748b;
+        margin: 0;
+        line-height: 1.4;
     }
 
     /* Estilização das Mensagens do Chat */
@@ -173,15 +305,26 @@ CUSTOM_CSS = """
         border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    /* Botão Primário / Limpar Chat */
+    /* Botão Limpar Chat */
     div.stButton > button {
         border-radius: 10px;
         font-weight: 600;
-        font-size: 0.88rem;
+        font-size: 0.86rem;
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        background: rgba(239, 68, 68, 0.08);
+        color: #fca5a5;
         transition: all 0.2s ease;
+    }
+
+    div.stButton > button:hover {
+        background: rgba(239, 68, 68, 0.18);
+        border-color: rgba(239, 68, 68, 0.45);
+        color: #fee2e2;
+        transform: translateY(-1px);
     }
 </style>
 """
+
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 # --- Hero Banner: Título e Descrição da Empresa ---
@@ -227,6 +370,9 @@ if user_query:
 
     with st.chat_message("assistant", avatar="🛒"):
         with st.spinner("Consultando agentes especialistas..."):
+            # Gera um identificador único de rastreamento para a requisição
+            request_trace_id = str(uuid.uuid4())
+            
             # --- Lógica de Integração com o Grafo LangGraph  ---
             initial_state = AgentState(
                 user_query=user_query, 
@@ -238,7 +384,7 @@ if user_query:
                 specialist_tokens=0, specialist_cost=0.0, specialist_latency=0.0,
                 total_tokens=0, total_cost=0.0, total_latency=0.0,
                 current_agent=None, error_message=None, context_id=None,
-                trace_id=None, start_time=None, end_time=None, recursion_limit_counter=None
+                trace_id=request_trace_id, start_time=None, end_time=None, recursion_limit_counter=None
             )
 
             # Invoca o grafo LangGraph
@@ -272,49 +418,90 @@ if user_query:
 # --- Barra Lateral (Métricas e Controles) ---
 with st.sidebar:
     st.markdown("### 📊 Painel de Métricas")
-    st.caption("Estatísticas da última inferência executada pelo sistema.")
+    st.caption("Estatísticas da última inferência executada pelo sistema multi-agente.")
 
     if "last_request_metrics" in st.session_state:
         metrics = st.session_state.last_request_metrics
         
-        # Grid de métricas em 2 colunas
+        # Formata o nome do agente para exibição amigável
+        raw_agent = metrics.get('selected_agent', 'N/A')
+        formatted_agent = raw_agent.replace('_', ' ').title() if raw_agent != "N/A" else "Não Atribuído"
+
+        # 1. Card "Agente" isoladamente no topo
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-label"><i class="fa-solid fa-robot"></i> Agente Roteado</div>
+            <div class="agent-badge-container">
+                <span class="agent-pill">
+                    <i class="fa-solid fa-microchip"></i> {formatted_agent}
+                </span>
+                <span style="font-size: 0.72rem; color: #34d399; font-weight: 600;">● Ativo</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # 2. Próxima linha: "Latência total" e "Total tokens" alinhados na mesma linha
         col1, col2 = st.columns(2)
         with col1:
             st.markdown(f"""
             <div class="metric-box">
-                <div class="metric-label">⏱️ Latência Total</div>
-                <div class="metric-value">{metrics['total_latency']:.2f}s</div>
+                <div class="metric-label"><i class="fa-solid fa-stopwatch"></i> Latência Total</div>
+                <div class="metric-value">
+                    {metrics['total_latency']:.2f}<span class="metric-unit">s</span>
+                </div>
             </div>
             """, unsafe_allow_html=True)
             
-            st.markdown(f"""
-            <div class="metric-box">
-                <div class="metric-label">💲 Custo Est.</div>
-                <div class="metric-value">${metrics['total_cost']:.5f}</div>
-            </div>
-            """, unsafe_allow_html=True)
-
         with col2:
             st.markdown(f"""
             <div class="metric-box">
-                <div class="metric-label">🎟️ Total Tokens</div>
-                <div class="metric-value">{metrics['total_tokens']}</div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            st.markdown(f"""
-            <div class="metric-box">
-                <div class="metric-label">🤖 Agente</div>
-                <span class="agent-pill">{metrics['selected_agent']}</span>
+                <div class="metric-label"><i class="fa-solid fa-ticket"></i> Total Tokens</div>
+                <div class="metric-value">
+                    {metrics['total_tokens']:,}<span class="metric-unit">tok</span>
+                </div>
             </div>
             """, unsafe_allow_html=True)
 
+        # 3. Próxima linha: Card "Custo Est." sozinho nessa linha com legenda
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-label"><i class="fa-solid fa-dollar-sign"></i> Custo Estimado</div>
+            <div class="cost-highlight">${metrics['total_cost']:.5f}</div>
+            <div class="metric-subtext">
+                <i class="fa-solid fa-circle-info"></i> Base: $1.00 / 1M de tokens
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # 4. Próxima linha: Bloco "Detalhes Técnicos & Latência"
         with st.expander("🔍 Detalhes Técnicos & Latência"):
-            st.write(f"**Supervisor Latência:** `{metrics['supervisor_latency']:.2f}s`")
-            st.write(f"**Especialista Latência:** `{metrics['specialist_latency']:.2f}s`")
-            st.write(f"**Trace ID:** `{metrics['trace_id']}`")
+            sup_lat = metrics.get('supervisor_latency') or 0.0
+            esp_lat = metrics.get('specialist_latency') or 0.0
+            raw_trace = metrics.get('trace_id')
+            trace_val = str(raw_trace) if raw_trace else "N/A"
+            trace_display = f"{trace_val[:12]}..." if trace_val != "N/A" and len(trace_val) > 12 else trace_val
+            st.markdown(f"""
+            <div class="tech-detail-card">
+                <span class="tech-detail-key">Supervisor Latência</span>
+                <span class="tech-detail-val">{sup_lat:.2f}s</span>
+            </div>
+            <div class="tech-detail-card">
+                <span class="tech-detail-key">Especialista Latência</span>
+                <span class="tech-detail-val">{esp_lat:.2f}s</span>
+            </div>
+            <div class="tech-detail-card">
+                <span class="tech-detail-key">Trace ID</span>
+                <span class="tech-detail-val">{trace_display}</span>
+            </div>
+            """, unsafe_allow_html=True)
+            st.caption(f"ID Completo: `{trace_val}`")
     else:
-        st.info("💡 Envie uma mensagem para visualizar as métricas detalhadas em tempo real.")
+        st.markdown("""
+        <div class="sidebar-empty-state">
+            <i class="fa-solid fa-chart-simple"></i>
+            <p>Envie uma mensagem para visualizar a telemetria e o custo em tempo real.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("---")
     
@@ -328,8 +515,19 @@ with st.sidebar:
     # --- Rodapé da Barra Lateral ---
     st.markdown("""
     <div class="sidebar-footer">
-        <p>Criado por <a href="https://raguiar.eng.br" target="_blank">Rodrigo Aguiar</a></p>
+        <p class="author-title">Criado por <a href="https://raguiar.eng.br" target="_blank" rel="noopener noreferrer">Rodrigo Aguiar</a></p>
+        <div class="sidebar-social-links">
+            <a href="https://github.com/RAguiarEng" target="_blank" rel="noopener noreferrer" title="GitHub">
+                <i class="fa-brands fa-github"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/rsouzaaguiar" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                <i class="fa-brands fa-linkedin"></i>
+            </a>
+        </div>
+        <p class="location-text">© 2026 Rodrigo Souza Aguiar · Jaraguá do Sul, SC, Brasil (GMT-3)</p>
     </div>
     """, unsafe_allow_html=True)
+
+
 
 logger.info("Aplicativo Streamlit iniciado.")

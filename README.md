@@ -45,7 +45,7 @@ Acesso: [app.rsa.ia.br](https://app.rsa.ia.br)
 ## 🗂️ Estrutura do Projeto
 
 ```
-RAG/
+root/
 ├── agents/
 │   ├── specialist/
 │   │   ├── __init__.py

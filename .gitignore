@@ -43,3 +43,4 @@ Thumbs.db
 # IDEs
 .vscode/
 .idea/
+.codegraphy/*  
